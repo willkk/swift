@@ -12,22 +12,30 @@ type UserReq struct {
 	Phone string `json:"phone"`
 }
 
-func (ur *UserReq)New() interface{} {
-	return &UserReq{}
-}
-
 type UserResp struct {
 	Code int 	`json:"code"`
 	Msg  string `json:"msg"`
 }
 
-func (urs *UserResp)New() interface{} {
+// It should implement Command interface
+type UserCommand struct {
+}
+
+func (uc *UserCommand)Name() string {
+	return "User"
+}
+
+func (uc *UserCommand)NewReq() interface{} {
+	return &UserReq{}
+}
+
+func (uc *UserCommand)NewResp() interface{} {
 	return &UserResp{}
 }
 
-func HandleUser(command *swift.BaseCommand) {
-	req := command.Req.(*UserReq)
-	resp := command.Resp.(*UserResp)
+func (uc *UserCommand)Handle(bCmd *swift.BaseCommand) {
+	req := bCmd.Req.(*UserReq)
+	resp := bCmd.Resp.(*UserResp)
 	log.Printf("handle user:%v", req)
 
 	resp.Msg = "test ok"
@@ -36,7 +44,7 @@ func HandleUser(command *swift.BaseCommand) {
 func main() {
 	swift.Init()
 
-	swift.RegisterCmd("/user", "User",&UserReq{} , &UserResp{}, HandleUser)
+	swift.RegisterCommand("/user", &UserCommand{})
 
 	http.ListenAndServe(":5600", nil)
 }

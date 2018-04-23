@@ -10,14 +10,14 @@ import (
 
 func Init() {
 	http.HandleFunc("/", HandleRequest)
-	Cmds = make(map[string]*CmdCore)
+	cmds = make(map[string]Command)
 }
 
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	cmd := newCommand(w, r)
 
 	if cmd == nil {
-		return 
+		return
 	}
 
 	defer cmd.WriteResponse()
@@ -28,26 +28,23 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Cmds[cmd.Cmd].handler(cmd)
+	cmds[cmd.Cmd].Handle(cmd)
 }
 
 // Store all cmds info
 // r.URL.Path => Name. For example, "/user" => "User"
-var Cmds map[string]*CmdCore
+var cmds map[string]Command
 
-func RegisterCmd(path, name string, req, resp Newable, handler func(*BaseCommand)) {
-	Cmds[path] = &CmdCore{req, resp, name, handler}
+func RegisterCommand(path string, cmd Command) {
+	cmds[path] = cmd
 }
 
-type CmdCore struct {
-	req  Newable
-	resp Newable
-	name string
-	handler func(*BaseCommand)
-}
-
-type Newable interface {
-	New() interface{}
+// Every command should implement this interface
+type Command interface {
+	Name()  string
+	NewReq()  interface{}
+	NewResp() interface{}
+	Handle(*BaseCommand)
 }
 
 type BaseCommand struct {
@@ -64,7 +61,7 @@ func newCommand(w http.ResponseWriter, r *http.Request) *BaseCommand {
 	if strings.HasSuffix(path, "/") {
 		path = strings.TrimSuffix(path, "/")
 	}
-	if Cmds[path] == nil {
+	if cmds[path] == nil {
 		return nil
 	}
 
@@ -74,14 +71,14 @@ func newCommand(w http.ResponseWriter, r *http.Request) *BaseCommand {
 		Cmd: path,
 	}
 
-	baseCmd.Req = Cmds[baseCmd.Cmd].req.New()
-	baseCmd.Resp = Cmds[baseCmd.Cmd].resp.New()
+	baseCmd.Req = cmds[baseCmd.Cmd].NewReq()
+	baseCmd.Resp = cmds[baseCmd.Cmd].NewResp()
 
 	return baseCmd
 }
 
 func (this *BaseCommand) ReadRequest() error {
-	cmd := Cmds[this.Cmd].name
+	cmd := cmds[this.Cmd].Name()
 	if cmd == "" {
 		return errors.New("invalid request")
 	}
