@@ -1,6 +1,6 @@
 # swift
-A simple and fast API framework to handle general http requests.
-Advantages:
+A simple and fast API framework to handle general http requests.  
+Advantages:  
 1. First, you can only focus on business codes, without concerning too much about application architecture.
 2. Second, it can make your application cleaner and easier to read.
 3. Last, it makes you code less. 
