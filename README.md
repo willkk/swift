@@ -1,6 +1,6 @@
 # swift
 A simple and fast API framework to handle general http requests. With this framework, you can organize your code
-in modules, making your codes more reusable and portable between projects.
+in modules, making your codes more reusable and portable between projects.  
 Advantages:
 1. More business codes, no more application architecture.
 2. More modularization&reusability, no more repeating.
