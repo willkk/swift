@@ -2,9 +2,9 @@
 A simple and practical API framework to handle general http requests. With this framework, you can organize your code
 in modules, making your codes more reusable and portable between projects.  
 Advantages:
-1. More business codes, no more application architecture.
-2. More modularization&reusability, no more repeating.
-3. More thinking, no more typing.
+1. More focus on business codes, not application architecture.
+2. More modularization&reusability, not repeating.
+3. More thinking, not typing.
 
 ## Example
 
