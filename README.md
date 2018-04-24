@@ -1,18 +1,10 @@
 # swift
-<<<<<<< HEAD
 A simple and fast API framework to handle general http requests. With this framework, you can organize your code
 in modules, making your codes more reusable and portable between projects.
 Advantages:
 1. More business codes, no more application architecture.
 2. More modularization&reusability, no more repeating.
 3. More thinking, no more typing.
-=======
-A simple and fast API framework to handle general http requests.  
-Advantages:  
-1. First, you can only focus on business codes, without concerning too much about application architecture.
-2. Second, it can make your application cleaner and easier to read.
-3. Last, it makes you code less. 
->>>>>>> b7b416de63e189160a3ede166662adcbd560b885
 
 ## Example
 
@@ -64,10 +56,6 @@ func main() {
 	http.ListenAndServe(":5600", nil)
 }
 ```
-<<<<<<< HEAD
-
-You can send request using like:
-curl http://localhost:5600/user -d '{"name":"xcww", "sex":"male", "phone":"110"}' // correct request
+You can send request using like:  
+curl http://localhost:5600/user -d '{"name":"xcww", "sex":"male", "phone":"110"}' // correct request  
 curl http://localhost:5600/test -d '{"test":"0000"}' // unknown request
-=======
->>>>>>> b7b416de63e189160a3ede166662adcbd560b885
