@@ -56,6 +56,6 @@ func main() {
 	http.ListenAndServe(":5600", nil)
 }
 ```
-You can send request using like:  
+You can send requests using commands like:  
 curl http://localhost:5600/user -d '{"name":"xcww", "sex":"male", "phone":"110"}' // correct request  
 curl http://localhost:5600/test -d '{"test":"0000"}' // unknown request
