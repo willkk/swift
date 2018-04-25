@@ -1,11 +1,12 @@
 package swift
 
 import (
-	"net/http"
-	"strings"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"encoding/json"
+	"net/http"
+	"strings"
+	"time"
 )
 
 func Init() {
@@ -24,7 +25,6 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	err := cmd.ReadRequest()
 	if err != nil {
-
 		return
 	}
 
@@ -41,8 +41,8 @@ func RegisterCommand(path string, cmd Command) {
 
 // Every command should implement this interface
 type Command interface {
-	Name()  string
-	NewReq()  interface{}
+	Name() string
+	NewReq() interface{}
 	NewResp() interface{}
 	Handle(*BaseCommand)
 }
@@ -53,6 +53,9 @@ type BaseCommand struct {
 	Req  interface{}
 	Resp interface{}
 	Cmd  string // interface name, that is, last path in r.URL.Path.
+
+	// For time tracking
+	Start time.Time
 }
 
 func newCommand(w http.ResponseWriter, r *http.Request) *BaseCommand {
@@ -66,9 +69,10 @@ func newCommand(w http.ResponseWriter, r *http.Request) *BaseCommand {
 	}
 
 	baseCmd := &BaseCommand{
-		r:   r,
-		w:   w,
-		Cmd: path,
+		r:     r,
+		w:     w,
+		Cmd:   path,
+		Start: time.Now(),
 	}
 
 	baseCmd.Req = cmds[baseCmd.Cmd].NewReq()

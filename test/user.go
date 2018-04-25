@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/willkk/swift"
 	"log"
+	"time"
+
+	"github.com/willkk/swift"
 )
 
 type UserReq struct {
@@ -12,7 +14,7 @@ type UserReq struct {
 }
 
 type UserResp struct {
-	Code int 	`json:"code"`
+	Code int    `json:"code"`
 	Msg  string `json:"msg"`
 }
 
@@ -20,22 +22,24 @@ type UserResp struct {
 type UserCommand struct {
 }
 
-func (uc *UserCommand)Name() string {
+func (uc *UserCommand) Name() string {
 	return "User"
 }
 
-func (uc *UserCommand)NewReq() interface{} {
+func (uc *UserCommand) NewReq() interface{} {
 	return &UserReq{}
 }
 
-func (uc *UserCommand)NewResp() interface{} {
+func (uc *UserCommand) NewResp() interface{} {
 	return &UserResp{}
 }
 
-func (uc *UserCommand)Handle(bCmd *swift.BaseCommand) {
+func (uc *UserCommand) Handle(bCmd *swift.BaseCommand) {
 	req := bCmd.Req.(*UserReq)
 	resp := bCmd.Resp.(*UserResp)
 	log.Printf("handle user:%v", req)
 
 	resp.Msg = "test ok"
+
+	log.Printf("time used:%d ms", time.Now().Sub(bCmd.Start).Nanoseconds()/1000000)
 }
