@@ -16,13 +16,8 @@ func Init() {
 
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	cmd := NewCommand(w, r)
-
-	if cmd == nil {
-		return
-	}
-
 	defer cmd.WriteResponse()
-
+	
 	err := cmd.ReadRequest()
 	if err != nil {
 		return
