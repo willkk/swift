@@ -18,12 +18,19 @@ type UserReq struct {
 }
 
 type UserResp struct {
-	Code int 	`json:"code"`
+	Code int    `json:"code"`
 	Msg  string `json:"msg"`
 }
 
 // It should implement Command interface
 type UserCommand struct {
+	swift.BaseCommand
+}
+
+func (uc *UserCommand) New(base *swift.BaseCommand) swift.Command {
+	return &UserCommand{
+		*base,
+	}
 }
 
 func (uc *UserCommand)Name() string {
@@ -38,12 +45,14 @@ func (uc *UserCommand)NewResp() interface{} {
 	return &UserResp{}
 }
 
-func (uc *UserCommand)Handle(bCmd *swift.BaseCommand) {
-	req := bCmd.Req.(*UserReq)
-	resp := bCmd.Resp.(*UserResp)
+func (uc *UserCommand) Handle() {
+	req := uc.Req.(*UserReq)
+	resp := uc.Resp.(*UserResp)
 	log.Printf("handle user:%v", req)
 
 	resp.Msg = "test ok"
+
+	log.Printf("time used:%d ms", time.Now().Sub(uc.Start).Nanoseconds()/1000000)
 }
 
 // test.go
