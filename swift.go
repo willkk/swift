@@ -15,7 +15,7 @@ func Init() {
 }
 
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
-	cmd := newCommand(w, r)
+	cmd := NewCommand(w, r)
 
 	if cmd == nil {
 		return
@@ -28,7 +28,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmds[cmd.Cmd].Handle(cmd)
+	cmds[cmd.Name()].Handle()
 }
 
 // Store all cmds info
@@ -44,7 +44,11 @@ type Command interface {
 	Name() string
 	NewReq() interface{}
 	NewResp() interface{}
-	Handle(*BaseCommand)
+	New(base *BaseCommand) Command
+
+	ReadRequest() error
+	Handle()
+	WriteResponse()
 }
 
 type BaseCommand struct {
@@ -58,7 +62,24 @@ type BaseCommand struct {
 	Start time.Time
 }
 
-func newCommand(w http.ResponseWriter, r *http.Request) *BaseCommand {
+type UnknownCommand struct {
+	BaseCommand
+}
+
+func (this *UnknownCommand) Handle() {
+	this.Resp = &struct{
+		Code int
+		Msg  string
+	}{1000, "invalid interface"}
+}
+
+func (this *UnknownCommand) New(base *BaseCommand) Command {
+	return &UnknownCommand{
+		*base,
+	}
+}
+
+func NewCommand(w http.ResponseWriter, r *http.Request) Command {
 	// Both of path "/test" and "/test/" correspond to "/test" command
 	path := r.URL.Path
 	if strings.HasSuffix(path, "/") {
@@ -68,17 +89,41 @@ func newCommand(w http.ResponseWriter, r *http.Request) *BaseCommand {
 		return nil
 	}
 
-	baseCmd := &BaseCommand{
+	baseCmd := BaseCommand{
 		r:     r,
 		w:     w,
 		Cmd:   path,
 		Start: time.Now(),
+		Req:   cmds[path].NewReq(),
+		Resp:  cmds[path].NewResp(),
 	}
 
-	baseCmd.Req = cmds[baseCmd.Cmd].NewReq()
-	baseCmd.Resp = cmds[baseCmd.Cmd].NewResp()
+	var cmd Command
+	cmdTemplate, ok :=  cmds[path]
+	if !ok {
+		cmd = &UnknownCommand{
+			BaseCommand{
+				r: r,
+				w: w,
+			},
+		}
+	} else {
+		cmd = cmdTemplate.New(&baseCmd)
+	}
 
-	return baseCmd
+	return cmd
+}
+
+func (this *BaseCommand) Name() string {
+	return ""
+}
+
+func (this *BaseCommand) NewReq() interface{} {
+	return nil
+}
+
+func (this *BaseCommand) NewResp() interface{} {
+	return nil
 }
 
 func (this *BaseCommand) ReadRequest() error {
@@ -97,6 +142,10 @@ func (this *BaseCommand) ReadRequest() error {
 	}
 
 	return nil
+}
+
+func (this *BaseCommand) Handle() {
+
 }
 
 func (this *BaseCommand) WriteResponse() {
